@@ -1,0 +1,242 @@
+#include<SoftwareSerial.h>
+SoftwareSerial gps(7,6);
+#include<LiquidCrystal.h>
+LiquidCrystal lcd(13,12,11,10,9,8);
+String data="";
+String data1="";
+48
+int button=A0;
+int buzzer=A1;
+int sos=6;
+int cnt=0,hb=0,ht=0;
+int buttonState = 0;
+int i=0,k=0;
+int gps_status=0;
+float latitude=17.411713181362927; //17.411713181362927, 78.39868506571699
+float logitude=78.39868506571699;
+String Speed="";
+String gpsString="";
+char *test="$GPRMC";
+int time=0;
+String number="63********";
+String number1="63********";
+int message=0;
+int temp=0;
+void okcheck();
+void regnumber()
+{
+/*String number="9***********";
+int message=0;*/
+lcd.clear();lcd.print("AT");Serial.print("AT\r\n");delay(1000);
+lcd.clear();lcd.print("ATE0");Serial.print("ATE0\r\n");delay(1000);
+lcd.clear();lcd.print("AT+CMGF=1");Serial.print("AT+CMGF=1\r\n");delay(1000);
+49
+lcd.clear();lcd.print("AT+CNMI=1,2,0,0");Serial.print("AT+CNMI=1,2,0,0\r\n");dela
+y(1000);
+Serial.end();delay(10000);Serial.begin(9600);delay(1000);
+lcd.clear();lcd.print("PLZ STORE NUM");
+back:
+while(Serial.available()>0)
+{
+//String number="9**********";
+//int message=0;
+String s=Serial.readString();
+int len=s.length();
+int ourdata = s.indexOf("NUMBER:");
+lcd.clear();lcd.print("message received");delay(1000);
+lcd.clear();lcd.print("Num:");
+for(int i=7;i<=17;i++)
+{
+number[i-7]=s[ourdata+i];
+}
+message=1;
+lcd.print(number);delay(1000);
+Serial.end();delay(10000);Serial.begin(9600);delay(1000);
+lcd.clear();lcd.print("Sending SMS...");lcd.setCursor(0,1);lcd.print("To "); 
+lcd.print(number);delay(1000);
+Serial.print("AT+CMGS=");
+Serial.print('"');
+50
+Serial.print(number);
+Serial.print('"');
+Serial.print("\r\n");delay(1000);
+Serial.print("WELCOME TO HARDWARE KIT");delay(100);
+Serial.write(0x1A);delay(10000);
+Serial.end();delay(10000);Serial.begin(9600);delay(1000);
+lcd.clear();lcd.print(" SMS SENT.....");delay(1000);
+lcd.clear();lcd.print("wating for input");
+}
+if(message==0)
+goto back;
+}
+void setup()
+{
+pinMode(button,INPUT);pinMode(buzzer,OUTPUT);digitalWrite(buzzer,HIGH);
+Serial.begin(9600);delay(1000);
+lcd.begin(16,2);
+lcd.print("WOMAN SAFETY ");
+lcd.setCursor(0,1);
+lcd.print("USING GSM AND GPS");
+delay(2000);
+lcd.clear();
+51
+lcd.print("Initializing");
+lcd.setCursor(0,1);
+lcd.print("Please Wait...");
+delay(1000);
+lcd.clear();lcd.print("AT");Serial.print("AT\r\n");delay(1000);
+lcd.clear();lcd.print("ATE0");Serial.print("ATE0\r\n");delay(1000);
+lcd.clear();lcd.print("AT+CMGF=1");Serial.print("AT+CMGF=1\r\n");delay(1000);
+lcd.clear();lcd.print("AT+CNMI=1,2,0,0");Serial.print("AT+CNMI=1,2,0,0\r\n");dela
+y(1000);
+lcd.clear();lcd.print("Sending SMS...");lcd.setCursor(0,1);lcd.print("To "); 
+lcd.print(number);delay(1000);
+Serial.print("AT+CMGS=");
+Serial.print('"');
+Serial.print(number);
+Serial.print('"');
+Serial.print("\r\n");delay(1000);
+Serial.print("WELCOME TO HARDWARE KIT");delay(100);
+Serial.write(0x1A);delay(10000);
+Serial.end();delay(10000);Serial.begin(9600);delay(1000);
+lcd.clear();lcd.print(" SMS SENT.....");delay(1000);
+lcd.clear();lcd.print("AT");Serial.print("AT\r\n");delay(1000);
+lcd.clear();lcd.print("ATE0");Serial.print("ATE0\r\n");delay(1000);
+lcd.clear();lcd.print("Calling...");Serial.println("ATD63*******;");delay(10000);del
+ay(10000);
+Serial.println("ATH");delay(1000);
+52
+lcd.clear();lcd.print("wating for input");
+//regnumber();
+lcd.print("System Ready");
+// Serial.println("System Ready..");
+data="WELCOME TO HARDWARE KIT";delay(1000);
+//Send();
+lcd.clear();lcd.print("READY TO USE.....");
+}
+void loop()
+{
+back:
+int buttonval=digitalRead(button);delay(100);
+if(buttonval==LOW)
+{
+lcd.clear();lcd.print("UPDATEING ");
+lcd.setCursor(0,1);lcd.print("LOCATION DETAILS...");delay(1000);
+data="LOCATION IS ";
+Send();
+lcd.clear();lcd.print("SMS SENT....");delay(1000);
+lcd.clear();lcd.print("AT");Serial.print("AT\r\n");delay(1000);
+lcd.clear();lcd.print("ATE0");Serial.print("ATE0\r\n");delay(1000);
+53
+lcd.clear();lcd.print("CAlling...");Serial.println("ATD63********;");delay(10000);de
+lay(10000);
+Serial.println("ATH");delay(1000);
+lcd.clear();lcd.print("READY TO USE.....");
+}
+while(Serial.available())
+{
+String s=Serial.readString();
+int len=s.length();
+int ourdata = s.indexOf("DATA:");
+//Serial.print("OUR DATA=");
+//Serial.print(s[ourdata+5]);
+//Serial.print(s[ourdata+6]);
+//Serial.print(s[ourdata+7]);
+//Serial.print(s[ourdata+8]);
+lcd.clear();lcd.print("DATA:");
+lcd.print(s[ourdata+5]);delay(1000);
+lcd.print(s[ourdata+6]);delay(1000);
+lcd.print(s[ourdata+7]);delay(1000);
+lcd.print(s[ourdata+8]);delay(1000);
+54
+lcd.print(s[ourdata+9]);delay(1000);
+if((s[ourdata+5]=='T')&&(s[ourdata+6]=='R')&&(s[ourdata+7]=='A')&&(s[ourdata+8
+]=='C')&&(s[ourdata+9]=='K'))
+{
+data="LOCATION IS";
+Send();
+lcd.clear();lcd.print("SMS SENT....");delay(1000);
+lcd.clear();lcd.print("READY TO USE.....");
+}
+else 
+if((s[ourdata+5]=='S')&&(s[ourdata+6]=='O')&&(s[ourdata+7]=='U')&&(s[ourdata+8
+]=='N')&&(s[ourdata+9]=='D'))
+{
+temp=1;delay(1000);
+}
+else 
+if((s[ourdata+5]=='S')&&(s[ourdata+6]=='T')&&(s[ourdata+7]=='O')&&(s[ourdata+8
+]=='P'))
+{
+temp=0; delay(1000);
+}
+}
+55
+}
+void gpsEvent()
+{
+gpsString="";
+while(1)
+{
+while (gps.available()>0) //Serial incoming data from GPS
+{
+char inChar = (char)gps.read();
+gpsString+= inChar; //store incoming data from GPS to temparary string 
+str[]
+i++;
+// Serial.print(inChar);
+if (i < 7)
+{
+if(gpsString[i-1] != test[i-1]) //check for right string
+{
+i=0;
+gpsString="";
+}
+}
+if(inChar=='\r')
+{
+if(i>60)
+56
+{
+lcd.clear();lcd.print("Sending Sms");
+lcd.setCursor(0,1);lcd.print("To");lcd.print(number);delay(1000);
+Serial.println("AT");delay(500);
+Serial.println("AT+CMGF=1");delay(500);
+Serial.print("AT+CMGS=");
+Serial.print('"');
+Serial.print(number); //mobile no. for SMS alert
+Serial.println('"');delay(1000);
+Serial.print(gpsString); Serial.print(" ");
+Serial.write(26);
+delay(2000);
+lcd.clear();lcd.print("Check u r INBOX");delay(1000);
+lcd.clear();lcd.print("Ready to use...");
+lcd.clear();lcd.print("ATE0");Serial.print("ATE0\r\n");delay(1000);
+lcd.clear();lcd.print("CAlling...");Serial.println("ATD63********;");delay(10000);de
+lay(10000);
+Serial.println("ATH");delay(1000);
+lcd.clear();lcd.print("READY TO USE.....");
+cnt=0;
+return;
+}
+57
+}
+}
+}
+}
+void Send()
+{
+//String data="I AM IN TROUBLE...PLZ HELP ME. 
+String str="AT+CMGS=\"";
+str+=number;
+str+="\"\r\n";
+Serial.print(str);
+data+=String(latitude,6);
+data+=",";
+data+=String(logitude,6);
+data+="\r\n";
+Serial.print(data);
+delay(100);
+Serial.write(0x1A);
+delay(10000);
+}
